@@ -1,0 +1,34 @@
+- name: create config and data location
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_list:
+    - "{{ router_config_root }}"
+    - "{{ router_data_root }}"
+    - "{{ router_data_root }}/public"
+    - "{{ router_data_root }}/public/default"
+
+- name: create api location
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ svc_user }}"
+    group: 0
+  with_list:
+    - "{{ data_root }}/api"
+
+- name: create a default configuration
+  template:
+    src: ../files/Caddyfile
+    dest: "{{ router_config_root }}/Caddyfile"
+    mode: "644"
+    force: yes
+
+- name: create a default static site
+  template:
+    src: ../files/index.html
+    dest: "{{ router_data_root }}/public/default/index.html"
+    mode: "644"
+    force: no

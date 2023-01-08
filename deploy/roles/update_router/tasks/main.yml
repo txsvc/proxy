@@ -1,0 +1,41 @@
+- name: update container images
+  shell: >
+    {{container_util}} pull {{ artifact_host }}/{{ router_image }}:{{ router_version }}
+     {{container_util}} pull {{ artifact_host }}/{{ api_image }}:{{ api_version }}
+
+- name: stop the pod
+  ignore_errors: true
+  shell: >
+    {{container_util}} pod stop {{ svc_namespace }}
+
+- name: remove the pod
+  ignore_errors: true
+  shell: >
+    {{container_util}} pod rm {{ svc_namespace }}
+
+- name: update router configuration
+  template:
+    src: ../files/Caddyfile
+    dest: "{{ router_config_root }}/Caddyfile"
+    mode: "644"
+    force: yes
+
+- name: create router
+  shell: >
+    {{container_util}} create --name router --restart always \
+    -p 80:80 -p 443:443 \
+    -v {{ router_config_root }}:/config -v {{ router_data_root }}:/data \
+    --pod new:{{ svc_namespace }} \
+    {{ artifact_host }}/{{ router_image }}:{{ router_version }}
+
+- name: create api
+  shell: >
+    {{container_util}} create --name api --restart always \
+    -v {{ data_root }}/api:/opt/data \
+    --env CONFIG_LOCATION=/opt/data \
+    --pod {{ svc_namespace }} \
+    {{ artifact_host }}/{{ api_image }}:{{ api_version }}
+
+- name: start the pod
+  shell: >
+    {{container_util}} pod start {{ svc_namespace }}

@@ -1,0 +1,11 @@
+{{ inventory_hostname }} {
+	root * /data/public/default
+	file_server
+	tls {{ acme_account_email }}
+}
+
+{{ tld }} {
+	root * /data/public/default
+	file_server
+	tls {{ acme_account_email }}
+}

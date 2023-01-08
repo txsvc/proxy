@@ -1,0 +1,40 @@
+all:
+  hosts:
+    example.com:
+      # data and config locations
+      data_root: /opt/data
+      config_root: /opt/config
+
+      # location of the router
+      router_config_root: /opt/router/config
+      router_data_root: /opt/router/data
+      
+  vars:
+    # top-level domain
+    tld: example.com
+    
+    # ACME account
+    acme_account_email: root@example.com
+    
+    # google cloud configs
+    gcloud_credentials_file: credentials.json
+    gcloud_client_email: root@example.iam.gserviceaccount.com
+
+    # user and service owner
+    svc_user: txsvc
+    svc_user_uid: 1001
+    svc_namespace: txsvc
+
+    # container images
+    router_image: txsvc-hq/txsvc-hq/router
+    router_version: '0.1.0'
+    api_image: txsvc-hq/txsvc-hq/apikit
+    api_version: '0.1.0'
+    
+    # container engine
+    container_util: podman
+    artifact_host: europe-west3-docker.pkg.dev
+
+    # ansible configuration
+    ansible_user: root
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa

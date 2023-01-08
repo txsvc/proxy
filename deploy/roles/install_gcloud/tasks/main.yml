@@ -1,0 +1,35 @@
+- name: install repo
+  become: true
+  template:
+    src: ../files/google-cloud-sdk.repo
+    dest: /etc/yum.repos.d/google-cloud-sdk.repo
+    owner: root
+    group: root
+    force: yes
+
+- name: install additional packages
+  become: true
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - google-cloud-sdk
+
+- name: default google cloud configuration
+  template:
+    src: ../files/{{ gcloud_credentials_file }}
+    dest: "{{ config_root }}/credentials.json"
+    owner: "{{ svc_user }}"
+    group: "{{ svc_user }}"
+    mode: "644"
+    force: no
+
+- name: authenticate podman
+  become: true
+  ignore_errors: true
+  shell: >
+    gcloud auth activate-service-account {{ gcloud_client_email }} --key-file="{{ config_root }}/credentials.json"
+
+    gcloud auth configure-docker {{ artifact_host }} --quiet
+
